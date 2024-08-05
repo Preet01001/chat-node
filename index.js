@@ -18,10 +18,10 @@ const io = new Server(server,{
 });
 
  let waitingUser = null;
-
+    
 io.on("connection",(socket)=>{
-  //  console.log(`new user connected ${socket.id}`);
-
+    console.log(`new user connected ${socket.id}`);
+    
     if(waitingUser){
       socket.emit("paired",{partnerId:waitingUser.id});
       waitingUser.emit("paired",{partnerId:socket.id});
@@ -29,11 +29,14 @@ io.on("connection",(socket)=>{
     }else{
         waitingUser = socket;
     }
+
+    
     socket.on("disconnect",()=>{
-      //  console.log(`user disconnected ${socket.id}`);
+        console.log(`user disconnected ${socket.id}`);
         if(waitingUser===socket){
             waitingUser = null;
         }
+        io.emit("userdisconnected",{partid:socket.id})
     })
 
     socket.on("message",(data)=>{
@@ -42,7 +45,6 @@ io.on("connection",(socket)=>{
         let mess = data.message;
         io.to(id).emit("remess",mess);
     })
-
 });
 
 ///basic api's
@@ -53,6 +55,8 @@ app.get("/",(req,resp)=>{
 server.listen(1010,()=>{
     console.log("server started")
 });
+
+
 
 
 
